@@ -40,7 +40,7 @@ VoiceCraft 是一个现代化、基于 AI 驱动的语音合成与识别双向�
     GEMINI_API_KEY="your_api_key_here"
 
     # 可选：配置您的 NewAPI 中转网关地址及自定义模型
-    # GEMINI_BASE_URL="http://192.168.50.24:3000"
+    # GEMINI_BASE_URL="https://generativelanguage.googleapis.com"
     # GEMINI_TTS_MODEL="gemini-2.5-flash-preview-tts"
     # GEMINI_STT_MODEL="gemini-2.5-flash"
     ```
