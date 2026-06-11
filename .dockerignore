@@ -1,0 +1,9 @@
+npm-debug.log
+.env
+.git
+.github
+Dockerfile
+docker-compose.yml
+.gemini
+brain
+*.log

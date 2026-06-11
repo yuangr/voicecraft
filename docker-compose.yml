@@ -1,0 +1,16 @@
+services:
+  voicecraft:
+    build: .
+    container_name: voicecraft-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    dns:
+      - 223.5.5.5
+      - 8.8.8.8
+    environment:
+      - PORT=${PORT:-3000}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_BASE_URL=${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com}
+      - GEMINI_TTS_MODEL=${GEMINI_TTS_MODEL:-gemini-2.5-flash-preview-tts}
+      - GEMINI_STT_MODEL=${GEMINI_STT_MODEL:-gemini-2.5-flash}

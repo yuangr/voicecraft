@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoiceCraft - AI 语音合成与识别双向处理平台</title>
+  <meta name="description" content="VoiceCraft 是一个现代化、基于 AI 驱动的语音处理平台。集成了高品质文字转语音 (TTS) 与高精度语音转文字 (STT) 转录翻译服务，支持多种音色、语速、音调调节。">
+  <meta name="keywords" content="Edge TTS, 微软 TTS, Gemini TTS, 语音转文字, Whisper 语音识别, 语音翻译, 语音总结, VoiceCraft">
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Premium Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div class="glass-bg-container">
+    <div class="glow-orb" id="orb-1"></div>
+    <div class="glow-orb" id="orb-2"></div>
+  </div>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+        </div>
+        <h1>VoiceCraft</h1>
+      </div>
+      <p class="subtitle">AI 驱动的双向语音处理服务</p>
+      
+      <!-- Mode Switcher -->
+      <nav class="mode-tabs" role="tablist">
+        <button class="tab-btn active" id="tab-tts" role="tab" aria-selected="true" aria-controls="panel-tts">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          文字转语音
+        </button>
+        <button class="tab-btn" id="tab-stt" role="tab" aria-selected="false" aria-controls="panel-stt">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="23"/>
+            <line x1="8" x2="16" y1="23" y2="23"/>
+          </svg>
+          语音转文字
+        </button>
+      </nav>
+    </header>
+
+    <main class="app-main">
+      
+      <!-- Panel: Text to Speech -->
+      <section class="tab-panel active" id="panel-tts" role="tabpanel" aria-labelledby="tab-tts">
+        <div class="panel-grid">
+          <!-- Left: Input Area -->
+          <div class="panel-card input-card">
+            <div class="card-header">
+              <h2>文字输入</h2>
+              <div class="input-actions">
+                <button class="action-btn text-clear-btn" id="tts-clear" title="清空文本">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+            
+            <div class="input-wrapper">
+              <textarea id="tts-text" placeholder="在此输入需要合成为语音的文字... (支持长文本分段合成)" maxlength="5000"></textarea>
+              <div class="char-counter"><span id="tts-char-count">0</span> / 5000</div>
+            </div>
+
+            <div class="file-drop-area" id="tts-file-drop">
+              <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+              </svg>
+              <p>拖拽 .txt 文件至此 或 <span class="file-select-trigger">点击上传</span></p>
+              <input type="file" id="tts-file-input" accept=".txt" class="hidden-file-input">
+            </div>
+            <div id="tts-file-info" class="selected-file-banner hidden">
+              <span class="file-name-txt">text.txt</span>
+              <button class="remove-file-btn" id="tts-remove-file">&times;</button>
+            </div>
+          </div>
+
+          <!-- Right: Parameters and Output -->
+          <div class="panel-card params-card">
+            <h2>合成参数</h2>
+            
+            <div class="control-group">
+              <label for="tts-provider">声音引擎</label>
+              <select id="tts-provider">
+                <option value="edge">Edge 神经网络语音合成</option>
+                <option value="gemini">Gemini 智能拟真语音合成</option>
+              </select>
+            </div>
+
+            <div class="control-group" id="voice-select-group">
+              <label for="tts-voice">选择音色</label>
+              <select id="tts-voice">
+                <!-- Dynamically loaded -->
+                <option value="">正在加载音色...</option>
+              </select>
+            </div>
+
+            <div class="slider-controls">
+              <div class="control-group">
+                <div class="slider-header">
+                  <label for="tts-speed">语速调节</label>
+                  <span class="slider-value" id="tts-speed-val">1.0x</span>
+                </div>
+                <input type="range" id="tts-speed" min="0.5" max="2.0" step="0.1" value="1.0">
+              </div>
+
+              <div class="control-group" id="pitch-control-group">
+                <div class="slider-header">
+                  <label for="tts-pitch">音调调节</label>
+                  <span class="slider-value" id="tts-pitch-val">0Hz</span>
+                </div>
+                <input type="range" id="tts-pitch" min="-50" max="50" step="5" value="0">
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-generate-tts">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              开始生成语音
+            </button>
+
+            <!-- TTS Output Result -->
+            <div class="output-result hidden" id="tts-output-box">
+              <div class="result-header">
+                <span>生成成功</span>
+              </div>
+              <div class="audio-player-wrapper">
+                <audio id="tts-audio-player" controls></audio>
+              </div>
+              <div class="result-actions">
+                <a id="tts-download-link" href="#" download="synthesized_speech.mp3" class="btn btn-secondary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
+                  </svg>
+                  下载音频 (MP3)
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel: Speech to Text -->
+      <section class="tab-panel" id="panel-stt" role="tabpanel" aria-labelledby="tab-stt">
+        <div class="panel-grid">
+          <!-- Left: Audio Input -->
+          <div class="panel-card input-card">
+            <h2>音频输入</h2>
+            
+            <div class="stt-mode-selector">
+              <button class="mode-opt active" id="stt-mode-upload">文件上传</button>
+              <button class="mode-opt" id="stt-mode-record">实时录音</button>
+            </div>
+
+            <!-- Upload Mode -->
+            <div class="stt-input-section active" id="stt-upload-sec">
+              <div class="file-drop-area" id="stt-file-drop">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                </svg>
+                <p>拖拽音频文件至此 (MP3, WAV, M4A, etc.) 或 <span class="file-select-trigger">点击上传</span></p>
+                <p class="file-limit-hint">支持最大 25MB 音频文件</p>
+                <input type="file" id="stt-file-input" accept="audio/*" class="hidden-file-input">
+              </div>
+              <div id="stt-file-info" class="selected-file-banner hidden">
+                <span class="file-name-txt">audio.mp3</span>
+                <button class="remove-file-btn" id="stt-remove-file">&times;</button>
+              </div>
+            </div>
+
+            <!-- Record Mode -->
+            <div class="stt-input-section" id="stt-record-sec">
+              <div class="record-container">
+                <div class="record-visualizer">
+                  <div class="record-pulse"></div>
+                  <button class="record-mic-btn" id="btn-record-mic" title="开始录音">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="record-status" id="record-status-txt">准备就绪，点击开始录音</div>
+                <div class="record-timer" id="record-duration">00:00</div>
+              </div>
+              <div id="stt-record-preview" class="audio-player-wrapper hidden">
+                <audio id="stt-record-player" controls></audio>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Process Options and Transcription Result -->
+          <div class="panel-card params-card">
+            <h2>转录设置</h2>
+            
+            <div class="control-group">
+              <label for="stt-engine-mode">处理模式</label>
+              <select id="stt-engine-mode">
+                <option value="transcribe">语音转写 (Transcribe)</option>
+                <option value="translate">语音翻译 (Translate)</option>
+                <option value="summarize">内容总结 (Summarize)</option>
+              </select>
+            </div>
+
+            <div class="control-group hidden" id="stt-lang-group">
+              <label for="stt-target-lang">目标语言</label>
+              <select id="stt-target-lang">
+                <option value="English">英文 (English)</option>
+                <option value="Chinese">中文 (Chinese)</option>
+                <option value="Japanese">日文 (Japanese)</option>
+                <option value="Korean">韩文 (Korean)</option>
+                <option value="French">法文 (French)</option>
+                <option value="German">德文 (German)</option>
+                <option value="Spanish">西班牙文 (Spanish)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" id="btn-transcribe">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              开始转录处理
+            </button>
+
+            <!-- STT Result Output -->
+            <div class="output-result stt-result-card hidden" id="stt-output-box">
+              <div class="result-header">
+                <span>转录结果</span>
+                <div class="result-header-actions">
+                  <button class="action-btn" id="stt-copy" title="复制文本">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </button>
+                  <button class="action-btn" id="stt-send-to-tts" title="发送到文字转语音">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Result Content -->
+              <div class="stt-result-content">
+                <textarea id="stt-result-text" placeholder="转录文本将在此处生成并支持二次编辑..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Global Loading Spinner overlay -->
+    <div class="loading-overlay hidden" id="global-loader">
+      <div class="loader-content">
+        <div class="spinner"></div>
+        <p id="loader-text">处理中，请稍候...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
