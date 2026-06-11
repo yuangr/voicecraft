@@ -63,12 +63,20 @@ let selectedAudioFile = null;
 
 // Gemini Prebuilt Voices
 const GEMINI_VOICES = [
-  { Name: 'Puck', FriendlyName: 'Puck (男声 - 活力)' },
-  { Name: 'Charon', FriendlyName: 'Charon (男声 - 深沉)' },
-  { Name: 'Kore', FriendlyName: 'Kore (女声 - 清晰)' },
-  { Name: 'Fenrir', FriendlyName: 'Fenrir (男声 - 专业)' },
-  { Name: 'Aoede', FriendlyName: 'Aoede (女声 - 亲切对话)' }
+  { Name: 'Puck', FriendlyName: 'Puck (男声 - 活力电台 / 播音主持)' },
+  { Name: 'Charon', FriendlyName: 'Charon (男声 - 深沉磁性 / 深夜电台)' },
+  { Name: 'Kore', FriendlyName: 'Kore (女声 - 清晰明快 / 智能助手)' },
+  { Name: 'Fenrir', FriendlyName: 'Fenrir (男声 - 稳重专业 / 资讯播报)' },
+  { Name: 'Aoede', FriendlyName: 'Aoede (女声 - 亲切自然 / 故事讲述)' },
+  { Name: 'Zephyr', FriendlyName: 'Zephyr (男声 - 儒雅温和 / 旁白解说)' },
+  { Name: 'Leda', FriendlyName: 'Leda (女声 - 温柔知性 / 文学朗读)' },
+  { Name: 'Orus', FriendlyName: 'Orus (男声 - 刚毅沉稳 / 广告宣传)' },
+  { Name: 'Callirrhoe', FriendlyName: 'Callirrhoe (女声 - 甜美欢快 / 有声读物)' },
+  { Name: 'Enceladus', FriendlyName: 'Enceladus (男声 - 浑厚有力 / 大气旁白)' },
+  { Name: 'Autonoe', FriendlyName: 'Autonoe (女声 - 严谨专业 / 学术讲解)' },
+  { Name: 'Iapetus', FriendlyName: 'Iapetus (男声 - 温暖和蔼 / 教学引导)' }
 ];
+
 
 // --- 1. Tab & Mode Switching ---
 tabTts.addEventListener('click', () => switchTab('tts'));
