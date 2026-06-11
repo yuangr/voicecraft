@@ -7,3 +7,5 @@ docker-compose.yml
 .gemini
 brain
 *.log
+*.tar
+voicecraft-app.tar
