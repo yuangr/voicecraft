@@ -6,13 +6,14 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
     "edge-tts-universal": "^1.4.0",
     "express": "^4.21.2",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^2.0.2",
     "ws": "^8.18.0"
   }
 }
