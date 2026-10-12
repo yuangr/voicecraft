@@ -68,9 +68,6 @@ function wrapPcmInWav(pcmData, sampleRate = 24000, numChannels = 1, bitsPerSampl
   return buffer;
 }
 
-// Cache voices in-memory to prevent multiple remote API calls
-let cachedVoices = null;
-
 // Route: Get voices list
 app.get('/api/voices', async (req, res) => {
   try {
@@ -86,8 +83,8 @@ app.get('/api/voices', async (req, res) => {
 app.post('/api/tts', async (req, res) => {
   const { text, voice, speed, pitch, provider } = req.body;
 
-  if (!text) {
-    return res.status(400).json({ error: 'Text content is required' });
+  if (typeof text !== 'string' || !text.trim() || text.length > 10000) {
+    return res.status(400).json({ error: 'Text must contain between 1 and 10000 characters' });
   }
 
   const selectedProvider = provider || 'edge';
@@ -104,7 +101,7 @@ app.post('/api/tts', async (req, res) => {
       }
 
       // Call Gemini TTS dedicated model for Audio generation
-      const url = `${GEMINI_BASE_URL}/v1beta/models/${GEMINI_TTS_MODEL}:generateContent?key=${apiKey}`;
+      const url = `${GEMINI_BASE_URL}/v1beta/models/${GEMINI_TTS_MODEL}:generateContent`;
       const payload = {
         contents: [{
           parts: [{
@@ -130,7 +127,8 @@ app.post('/api/tts', async (req, res) => {
           'x-goog-api-key': apiKey,
           'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(30000)
       });
 
       if (!geminiRes.ok) {
@@ -157,8 +155,8 @@ app.post('/api/tts', async (req, res) => {
       res.status(400).json({ error: 'Unsupported TTS provider' });
     }
   } catch (error) {
-    console.error('TTS synthesis error:', error);
-    res.status(500).json({ error: error.message || 'Error occurred during TTS synthesis.' });
+    console.error('TTS synthesis failed:', error.name);
+    res.status(500).json({ error: 'Speech synthesis failed. Please retry.' });
   }
 });
 
@@ -189,7 +187,7 @@ app.post('/api/stt', upload.single('file'), async (req, res) => {
       promptText = 'Please provide a clear and concise summary of the spoken content in this audio file. List the key points as bullet points.';
     }
 
-    const url = `${GEMINI_BASE_URL}/v1beta/models/${GEMINI_STT_MODEL}:generateContent?key=${apiKey}`;
+    const url = `${GEMINI_BASE_URL}/v1beta/models/${GEMINI_STT_MODEL}:generateContent`;
     const payload = {
       contents: [{
         parts: [
@@ -211,7 +209,8 @@ app.post('/api/stt', upload.single('file'), async (req, res) => {
         'x-goog-api-key': apiKey,
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(30000)
     });
 
     if (!geminiRes.ok) {
@@ -223,12 +222,26 @@ app.post('/api/stt', upload.single('file'), async (req, res) => {
     const transcript = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     res.json({ text: transcript.trim() });
   } catch (error) {
-    console.error('STT transcribing error:', error);
-    res.status(500).json({ error: error.message || 'Error occurred during STT transcription.' });
+    console.error('STT transcription failed:', error.name);
+    res.status(500).json({ error: 'Audio transcription failed. Please retry.' });
   }
 });
 
+// Report malformed JSON and upload limits without exposing stack traces.
+app.use((error, req, res, next) => {
+  if (res.headersSent) return next(error);
+  if (error instanceof multer.MulterError) {
+    const status = error.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    return res.status(status).json({ error: status === 413 ? 'Audio file exceeds 25 MB.' : 'Invalid audio upload.' });
+  }
+  if (error.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Invalid JSON request.' });
+  }
+  console.error('Request failed:', error.name);
+  res.status(500).json({ error: 'Request failed. Please retry.' });
+});
+
 // Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${server.address().port}`);
 });

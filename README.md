@@ -75,3 +75,7 @@ VoiceCraft 采用**端到端内存级流式处理**。所有生成的音频均�
 ## 📄 开源协议
 
 本项目基于 MIT 协议开源。
+
+## Request limits and privacy
+
+Text input is limited to 10,000 characters and audio uploads to 25 MB. Gemini requests expire after 30 seconds; API keys are sent in headers, and provider errors are not returned to the browser. The service has no built-in authentication: keep it behind an authenticated proxy when exposing it outside a trusted network. Run `npm test` to verify local request handling.
